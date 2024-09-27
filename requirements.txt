@@ -1,0 +1,3 @@
+# Core dependencies
+selenium==4.12.0     # Latest stable version of Selenium for browser automation
+pytest==7.4.0        # Pytest for running and managing test cases
