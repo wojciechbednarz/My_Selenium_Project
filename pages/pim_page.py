@@ -9,23 +9,23 @@ logger = logging.getLogger(__name__)
 
 class UsernameTooShortException(Exception):
     """Exception raised when username is too short"""
-    logger.error("Please provide username at least 5 character long!")
+    pass
 
 
 class PasswordTooShortException(Exception):
     """Exception raised when password is too short."""
-    logger.error("Please provide password at least 7 character long!")
+    pass
 
 
 class PasswordMustHaveNumberException(Exception):
     """Exception raised when password does not contain a number."""
-    logger.error("Please provide password with at least 1 number!")
+    pass
 
 
 PIM_TAB_LOCATOR = "//span[@class='oxd-text oxd-text--span oxd-main-menu-item--name'][normalize-space()='PIM']"
 ADD_EMPLOYEE_LOCATOR = "//a[normalize-space()='Add Employee']"
 LOGIN_DETAILS_LOCAOTR = ".oxd-switch-input.oxd-switch-input--active.--label-right"
-FIRST_NAME_LOCATOR = "//input[@placeholder='First Name']"
+FIRST_NAME_LOCATOR = "//input[@placeholder='First name']"
 LAST_NAME_LOCATOR = "//input[@placeholder='Last Name']"
 USERNAME_LOCATOR = "(//input[@autocomplete='off'])[1]"
 PASSWORD_LOCATOR = "(//input[@type='password'])[1]"
@@ -34,6 +34,10 @@ SAVE_LOCATOR = "//button[normalize-space()='Save']"
 TOO_SHORT_USERNAME_LOCATOR = "//span[normalize-space()='Should be at least 5 characters']"
 TOO_SHORT_PASSWORD_LOCATOR = "//span[normalize-space()='Should have at least 7 characters']"
 MUST_HAVE_NUMBER_PASSWORD_LOCATOR = "//span[normalize-space()='Your password must contain minimum 1 number']"
+EMPLOYEE_ROWS_LOCATOR = "//div[contains(@class, 'oxd-table-card')]"
+SAVED_RECORDS_FIRST_NAME_LOCATOR = ".//div[contains(@class, 'oxd-table-cell')][3]"
+SAVED_RECORDS_LAST_NAME_LOCATOR = ".//div[contains(@class, 'oxd-table-cell')][4]"
+
 
 
 class PimPage(BasePage):
@@ -56,7 +60,7 @@ class PimPage(BasePage):
         self.find_element((By.XPATH, USERNAME_LOCATOR)).send_keys(username)
         try:
             self.wait_for_the_element_to_be_visible((By.XPATH, TOO_SHORT_USERNAME_LOCATOR), 3)
-            raise UsernameTooShortException()
+            raise UsernameTooShortException("Please provide username at least 5 character long!")
         except TimeoutException:
             logger.info("Username seems valid, proceeding.")
 
@@ -70,7 +74,6 @@ class PimPage(BasePage):
 
     def _validate_password(self, password):
         """Validates the password length and number presence."""
-        self.enter_text((By.XPATH, PASSWORD_LOCATOR), password)
         if self._element_visible((By.XPATH, TOO_SHORT_PASSWORD_LOCATOR), 3):
             logger.error("Password must be at least 7 characters long.")
         elif self._element_visible((By.XPATH, MUST_HAVE_NUMBER_PASSWORD_LOCATOR), 3):
@@ -91,8 +94,13 @@ class PimPage(BasePage):
         self._validate_password(password)
         self._submit_form()
 
-    def employee_exists(self, param, param1):
-        pass
+    def employee_exists(self, first_name, last_name):
+        all_employees = self.get_all_employees()
+        for employee in all_employees:
+            if employee['FirstName'] == first_name and employee["LastName"] == last_name:
+                return True
+            logger.error(f"Employee doesnt exist: {first_name},{last_name}")
+            return False
 
     def add_employees_from_csv(self, csv_file_path):
         with open(csv_file_path, 'r') as file:
@@ -101,4 +109,24 @@ class PimPage(BasePage):
                 self.add_employee(row["FirstName"], row["LastName"], row["Username"], row["Password"])
                 assert self.employee_exists(row["FirstName"], row["LastName"])
 
+    def get_length_of_employees(self):
+        self.click_element((By.XPATH, PIM_TAB_LOCATOR))
+        self.wait_for_the_element_to_be_visible((By.XPATH, EMPLOYEE_ROWS_LOCATOR), 5)
+        first_names = self.find_elements((By.XPATH, SAVED_RECORDS_FIRST_NAME_LOCATOR))
+        return len(first_names)
 
+    def get_all_employees(self):
+        employees = []
+        self.click_element((By.XPATH, PIM_TAB_LOCATOR))
+        self.wait_for_the_element_to_be_visible((By.XPATH, EMPLOYEE_ROWS_LOCATOR), 5)
+        first_names = self.find_elements((By.XPATH, SAVED_RECORDS_FIRST_NAME_LOCATOR))
+        last_names = self.find_elements((By.XPATH, SAVED_RECORDS_LAST_NAME_LOCATOR))
+        if len(first_names) != len(last_names):
+            raise ValueError("Mismatch between the number of first names and last names.")
+        for i in range(len(first_names)):
+            employee = {
+                'FirstName': first_names[i].text,
+                'LastName': last_names[i].text
+            }
+            employees.append(employee)
+        return employees

@@ -4,6 +4,7 @@ from pages.pim_page import PimPage
 from browsers.chrome_browser import ChromeBrowser
 import logging
 import pytest
+from tests import test_add_employees_from_csv
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -24,13 +25,14 @@ def main():
     login_page = LoginPage(browser.driver)
     login_page.login("Admin", "admin123")
     login_page.check_title()
+    #
+    # admin_page = AdminPage(browser.driver)
+    # admin_page.navigate_to_admin_tab()
+    # admin_page.count_and_save_users()
 
-    admin_page = AdminPage(browser.driver)
-    admin_page.navigate_to_admin_tab()
-    admin_page.count_and_save_users()
-
-    pim_page = PimPage(browser.driver)
-    pim_page.add_employee("Adam", "Kowalski", "akowal", "abcdefgh1")
+    # pim_page = PimPage(browser.driver)
+    # pim_page.add_employee("Adam", "Kowalski", "akowal", "abcdefgh1")
+    # pim_page.get_all_employees()
 
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ class ChromeBrowser(BaseBrowser):
         # Option for failed to read descriptor from node connection issue.
         chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
         super().__init__(driver_path='drivers/chromedriver.exe',
-                         base_url="https://opensource-demo.orangehrmlive.com/web/index.php/auth/login",
+                         base_url="https://opensource-demo.orangehrmlive.com",
                          service_class=ChromeService,
                          options=chrome_options)
         self.driver = webdriver.Chrome(service=self.service, options=self.options)
