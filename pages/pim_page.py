@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 import logging
 import csv
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +23,11 @@ class PasswordMustHaveNumberException(Exception):
     pass
 
 
+class UsernameExistsException(Exception):
+    """Exception raised when username already exists."""
+    pass
+
+
 PIM_TAB_LOCATOR = "//span[@class='oxd-text oxd-text--span oxd-main-menu-item--name'][normalize-space()='PIM']"
 ADD_EMPLOYEE_LOCATOR = "//a[normalize-space()='Add Employee']"
 LOGIN_DETAILS_LOCAOTR = ".oxd-switch-input.oxd-switch-input--active.--label-right"
@@ -33,6 +39,7 @@ CONFIRM_PASSWORD_LOCATOR = "(//input[@type='password'])[2]"
 SAVE_LOCATOR = "//button[normalize-space()='Save']"
 TOO_SHORT_USERNAME_LOCATOR = "//span[normalize-space()='Should be at least 5 characters']"
 TOO_SHORT_PASSWORD_LOCATOR = "//span[normalize-space()='Should have at least 7 characters']"
+USED_USERNAME_LOCATOR = "//span[normalize-space()='Username already exists']"
 MUST_HAVE_NUMBER_PASSWORD_LOCATOR = "//span[normalize-space()='Your password must contain minimum 1 number']"
 EMPLOYEE_ROWS_LOCATOR = "//div[contains(@class, 'oxd-table-card')]"
 SAVED_RECORDS_FIRST_NAME_LOCATOR = ".//div[contains(@class, 'oxd-table-cell')][3]"
@@ -56,13 +63,20 @@ class PimPage(BasePage):
         self.find_element((By.XPATH, LAST_NAME_LOCATOR)).send_keys(last_name)
 
     def _validate_username(self, username):
-        """Validates the username and logs error if too short."""
+        """Validates the username and logs an error if it's too short or already exists."""
         self.find_element((By.XPATH, USERNAME_LOCATOR)).send_keys(username)
+        # Check if username is too short
         try:
-            self.wait_for_the_element_to_be_visible((By.XPATH, TOO_SHORT_USERNAME_LOCATOR), 3)
-            raise UsernameTooShortException("Please provide username at least 5 character long!")
+            if self.wait_for_the_element_to_be_visible((By.XPATH, TOO_SHORT_USERNAME_LOCATOR), 3):
+                raise UsernameTooShortException("Please provide a username at least 5 characters long!")
         except TimeoutException:
-            logger.info("Username seems valid, proceeding.")
+            logger.info("Username length seems valid, proceeding.")
+        # Check if username is already in use
+        try:
+            if self.wait_for_the_element_to_be_visible((By.XPATH, USED_USERNAME_LOCATOR), 3):
+                raise UsernameExistsException("Please provide a username that doesn't already exist!")
+        except TimeoutException:
+            logger.info("Username is available, proceeding.")
 
     def _element_visible(self, locator, timeout):
         """Helper function to check if element is visible within a timeout."""
@@ -92,6 +106,7 @@ class PimPage(BasePage):
         self._validate_username(username)
         self.enter_text((By.XPATH, PASSWORD_LOCATOR), password)
         self._validate_password(password)
+        time.sleep(5)
         self._submit_form()
 
     def employee_exists(self, first_name, last_name):
