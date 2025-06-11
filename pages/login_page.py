@@ -5,8 +5,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-USERNAME_LOCATOR = "//div/input[@name='username']"
-PASSWORD_LOCATOR = "//div/input[@name='password']"
+USERNAME_LOCATOR = "//input[@placeholder='Username']"
+PASSWORD_LOCATOR = "//input[@placeholder='Password']"
 LOGIN_LOCATOR = "//button[normalize-space()='Login']"
 
 

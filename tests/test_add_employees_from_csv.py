@@ -10,11 +10,3 @@ def test_add_employees_from_csv(open_browser_and_navigate_to_pim_page, employees
     assert employees[-2]['LastName'] == 'Doe'
     assert employees[-1]['FirstName'] == 'Jane'
     assert employees[-1]['LastName'] == 'Smith'
-
-
-# def add_employees_from_csv(self, csv_file_path):
-#     with open(csv_file_path, 'r') as file:
-#         reader = csv.DictReader(file)
-#         for row in reader:
-#             self.add_employee(row["FirstName"], row["LastName"], row["Username"], row["Password"])
-#

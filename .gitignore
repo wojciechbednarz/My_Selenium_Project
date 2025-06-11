@@ -1,3 +1,13 @@
-.log
-.venv
-.pyc
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Logs
+*.log
+
+# IDE settings (for JetBrains IDEs like PyCharm)
+.idea/
+
+# Virtual environments (if any)
+venv/
+.env/

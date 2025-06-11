@@ -30,8 +30,8 @@ class UsernameExistsException(Exception):
 
 PIM_TAB_LOCATOR = "//span[@class='oxd-text oxd-text--span oxd-main-menu-item--name'][normalize-space()='PIM']"
 ADD_EMPLOYEE_LOCATOR = "//a[normalize-space()='Add Employee']"
-LOGIN_DETAILS_LOCAOTR = ".oxd-switch-input.oxd-switch-input--active.--label-right"
-FIRST_NAME_LOCATOR = "//input[@placeholder='First name']"
+LOGIN_DETAILS_LOCATOR = "//span[@class='oxd-switch-input oxd-switch-input--active --label-right']"
+FIRST_NAME_LOCATOR = "//input[@placeholder='First Name']"
 LAST_NAME_LOCATOR = "//input[@placeholder='Last Name']"
 USERNAME_LOCATOR = "(//input[@autocomplete='off'])[1]"
 PASSWORD_LOCATOR = "(//input[@type='password'])[1]"
@@ -55,7 +55,7 @@ class PimPage(BasePage):
         """Opens the 'Add Employee' form."""
         self.click_element((By.XPATH, PIM_TAB_LOCATOR))
         self.click_element((By.XPATH, ADD_EMPLOYEE_LOCATOR))
-        self.click_element((By.CSS_SELECTOR, LOGIN_DETAILS_LOCAOTR))
+        self.click_element((By.XPATH, LOGIN_DETAILS_LOCATOR))
 
     def _fill_basic_details(self, first_name, last_name):
         """Fills in the basic details like first and last name."""

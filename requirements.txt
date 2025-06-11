@@ -2,3 +2,4 @@
 selenium~=4.24.0
 pytest~=8.3.3
 tinydb~=4.8.1
+webdriver-manager~=4.0.2
